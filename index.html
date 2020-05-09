@@ -68,7 +68,7 @@
             <label for="startVertex">
                 Source vertex: <input type="number" id="startVertex" min="0" max="12" />
             </label>
-            <br/>
+        <br/>
         </div>
 
         <table id="tableVerticesEdges" align="center" valign="center">
@@ -89,6 +89,8 @@
             Sorry, your browser does not support the HTML5 canvas tag.
         </canvas>
         <br/>
+
+        <p id="pMstWeight" style="display: none;">MST total weight: <span id="spanMstWeight"></span></p>
 
         <button type="button" id="btnFindMst">Find MST</button>
         <br/><br/>
@@ -119,6 +121,8 @@
         let btnCreateGraph = null;
         let tableEdgesVertices = null;
         let inputSourceVertex = null;
+        let pMstWeight = null;
+        let spanMstWeight = null;
 
         let tableVerticesEdges = null;
         let btnFindMst = null;
@@ -164,10 +168,12 @@
         }
 
         function isEdgeInMst(edge) {
+            if(mst.length < 1) return false;
             let ret = false;
             for(let i = 0; i < mst.length; i++) {
                 if(JSON.stringify(edge) === JSON.stringify(mst[i])) {
                     ret = true;
+                    break;
                 }
             }
             return ret;
@@ -188,6 +194,7 @@
                     continue;
                 }
                 context.beginPath();
+                context.strokeStyle = '#000000';
                 context.arc(vertices[i].x, vertices[i].y, 20, 0, 2 * Math.PI, false);
                 context.textAlign = 'center';
                 context.font = 'bold';
@@ -203,6 +210,7 @@
                 let weight = edges[i][2];
                 let wx = 0;
                 let wy = 0;
+                let inMst = isEdgeInMst(edges[i]);
                 wx = sx + ((tx - sx) / 2);
                 wy = sy + ((ty - sy) / 1.5);
                 if(Math.abs(sx - tx) <= 50) {
@@ -226,12 +234,13 @@
                     sy -= 20;
                     ty += 20;
                 }
-                if(mst.length > 0 && isEdgeInMst(edges[i])) {
-                    console.log("yes edge in mst");
-                }
+
                 context.beginPath();
+                context.font = 'bold';
+                context.strokeStyle = !inMst ? '#000000' : '#0096fe';
                 context.moveTo(sx, sy);
                 context.lineTo(tx, ty);
+                context.fill();
                 context.font = 'bold';
                 context.fillStyle = '#000000';
                 context.fillText(weight, wx, wy);
@@ -359,6 +368,8 @@
         }
 
         function prims() {
+            mst = [];
+            let mstWeight = 0;
             if(sourceVertex <= -1) {
                 alert("Please choose a source vertex");
                 inputSourceVertex.focus();
@@ -378,6 +389,7 @@
                     const edge = isEdgeExists(vu, vu.parent);
                     if(edge) {
                         mst.push(edge[0]);
+                        mstWeight += edge[1];
                     }
                 }
                 const adjs = getAdjacentVertices(vu);
@@ -394,9 +406,9 @@
                     }
                 }
             }
-            if(mst.length > 0) {
-                redrawGraph();
-            }
+            redrawGraph();
+            spanMstWeight.innerHTML = mstWeight;
+            pMstWeight.style.display = 'block';
         }
 
         function start() {
@@ -415,13 +427,15 @@
             wrapperStartVertex = document.getElementById("wrapperStartVertex");
             inputEdgeCosts = document.getElementsByClassName("inputEdgeCosts");
             selectVertices = document.getElementsByClassName("selectVertices");
+            pMstWeight = document.getElementById("pMstWeight");
+            spanMstWeight = document.getElementById("spanMstWeight");
 
             if(!btnCreateGraph || !inputNumberOfEdge || !inputNumberOfVertex || !btnFindMst || !tableVerticesEdges || !inputSourceVertex) {
                 return;
             }
 
             btnFindMst.onclick = function(e) {
-                const ar = prims();
+                prims();
             }
 
             inputNumberOfVertex.onchange = function(e) {
