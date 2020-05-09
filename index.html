@@ -166,7 +166,11 @@
         function isEdgeInMst(edge) {
             let ret = false;
             for(let i = 0; i < mst.length; i++) {
+                if(JSON.stringify(edge) === JSON.stringify(mst[i])) {
+                    ret = true;
+                }
             }
+            return ret;
         }
 
         function drawGraph() {
@@ -222,8 +226,8 @@
                     sy -= 20;
                     ty += 20;
                 }
-                if(mst.length > 0) {
-                    console.log(mst);
+                if(mst.length > 0 && isEdgeInMst(edges[i])) {
+                    console.log("yes edge in mst");
                 }
                 context.beginPath();
                 context.moveTo(sx, sy);
