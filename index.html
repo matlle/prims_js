@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prim's Algorithm: Find Minimum Spanning Tree</title>
+    <style>
+        .mainWrapper {
+            text-align: center;
+        }
+        .mainTitle {
+            text-decoration: underline;
+        }
+        #btnCreateGraph, #btnFindMst {
+            cursor: pointer;
+            padding: 4px;
+        }
+        #btnFindMst {
+            text-align: center;
+            visibility: hidden;
+        }
+        #canvas {
+            border: 1px solid #d3d3d3;
+            text-align: center;
+        }
+        #inputNumberOfVertex, #inputNumberOfEdge {
+            padding: 4px;
+            min-width: 190px;
+        }
+        #tableVerticesEdges {
+            border: 1px solid #d3d3d3;
+            display: none;
+            float: left;
+            margin: 17px 0 20px 100px;
+        }
+        .selectVertices {
+            width: 100px;
+        }
+        .inputEdgeCosts {
+            width: 50px;
+            text-align: center;
+        }
+        .table_first_title {
+            background-color: lightgrey;
+        }
+        #wrapperStartVertex {
+            display: none;
+        }
+        #startVertex {
+            width: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body onload="start()">
+    <div class="mainWrapper">
+        <h1 class="mainTitle">Graph Theory: Prim's Algorithm To Find MST</h1>
+        <div class="controlCommands">
+            <label for="inputNumberOfVertex">Vertices:</label>
+            <input type="number" id="inputNumberOfVertex" value="0" min="0" max="12" />
+            &nbsp;
+            <label for="inputNumberOfEdge">Edges:</label>
+            <input type="number" id="inputNumberOfEdge" value="0" min="0" />
+            <button type="button" id="btnCreateGraph">Create graph</button>
+        </div>
+
+        <div id="wrapperStartVertex">
+            <br/>
+            <label for="startVertex">
+                Source vertex: <input type="number" id="startVertex" min="0" max="12" />
+            </label>
+            <br/>
+        </div>
+
+        <table id="tableVerticesEdges" align="center" valign="center">
+            <thead>
+                <tr>
+                    <th class="table_first_title" colspan="3">Edges between vertices</th>
+                </tr>
+                <tr>
+                    <th>Vertex 1</th>
+                    <th>Vertex 2</th>
+                    <th>Weight</th>
+                </tr>
+            </thead>
+            <tbody id="rowsEdges"></tbody>
+        </table>
+        <br/>
+        <canvas id="canvas" width="1000" height="600">
+            Sorry, your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <br/>
+
+        <button type="button" id="btnFindMst">Find MST</button>
+        <br/><br/>
+        <p>&copy; Koukougnon Martial Babo - University of Lodz, 2020</p>
+    </div>
+
+
+    <script type="text/javascript">
+        const MAX_VERTICES = 12;
+        let vertices = [];
+        let edges    = [];
+        let mst      = [];
+        class Vertex {
+            key = Number.MAX_SAFE_INTEGER;
+            parent = null;
+            constructor(x, y, text) {
+                this.x = x;
+                this.y = y;
+                this.text = text;
+            }
+        }
+        let canvas = null;
+        let context = null;
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+        let inputNumberOfVertex = null;
+        let inputNumberOfEdge = null;
+        let btnCreateGraph = null;
+        let tableEdgesVertices = null;
+        let inputSourceVertex = null;
+
+        let tableVerticesEdges = null;
+        let btnFindMst = null;
+        let rowsEdges = null;
+        let wrapperStartVertex = null;
+        let inputEdgeCosts = null;
+        let previousNumStartingVertex = -1;
+        let selectVertices = null;
+        let sourceVertex = -1;
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function initScene() {
+            vertices = [];
+            edges = [];
+            context.clearRect(0, 0, canvasWidth, canvasHeight);
+            rowsEdges.innerHTML = "";
+            tableVerticesEdges.style.display      = 'none';
+            btnFindMst.style.visibility           = "hidden";
+            wrapperStartVertex.style.display      = "none";
+            canvas.style.margin = 'auto';
+        }
+
+        function isCollision(x, y) {
+            if(vertices.length === 0) {
+                return false;
+            }
+            let col = false;
+            for(let i = 0; i < vertices.length; i++) {
+                if((vertices[i].x - x) <= 100 && (vertices[i].y - y) <= 100) {
+                    col = true;
+                    break;
+                }
+            }
+            return col;
+        }
+
+        function redrawGraph() {
+            context.clearRect(0, 0, canvasWidth, canvasHeight);
+            drawGraph();
+        }
+
+        function isEdgeInMst(edge) {
+            let ret = false;
+            for(let i = 0; i < mst.length; i++) {
+                if(edge == )
+            }
+        }
+
+        function drawGraph() {
+            for(let i = 0; i < vertices.length; i++) {
+                if(sourceVertex === i) {
+                    context.beginPath();
+                    context.arc(vertices[i].x, vertices[i].y, 20, 0, 2 * Math.PI, false);
+                    context.fillStyle = '#0096fe';
+                    context.fill();
+                    context.textAlign = 'center';
+                    context.font = 'bold';
+                    context.fillStyle = '#ffffff';
+                    context.fillText(vertices[i].text, vertices[i].x, vertices[i].y + 3);
+                    context.stroke();
+                    continue;
+                }
+                context.beginPath();
+                context.arc(vertices[i].x, vertices[i].y, 20, 0, 2 * Math.PI, false);
+                context.textAlign = 'center';
+                context.font = 'bold';
+                context.fillStyle = '#000000';
+                context.fillText(vertices[i].text, vertices[i].x, vertices[i].y + 4);
+                context.stroke();
+            }
+            for(let i = 0; i < edges.length; i++) {
+                let sx = edges[i][0].x;
+                let sy = edges[i][0].y;
+                let tx = edges[i][1].x;
+                let ty = edges[i][1].y;
+                let weight = edges[i][2];
+                let wx = 0;
+                let wy = 0;
+                wx = sx + ((tx - sx) / 2);
+                wy = sy + ((ty - sy) / 1.5);
+                if(Math.abs(sx - tx) <= 50) {
+                    if(wx > canvasWidth / 2) {
+                        wx -= 15;
+                    } else {
+                        wx += 15;
+                    }
+                }
+                if(Math.abs(sy - ty) <= 50) {
+                    if(wy > canvasHeight / 2) {
+                        wy -= 15;
+                    } else {
+                        wy += 15;
+                    }
+                }
+                if(sy < ty) {
+                    sy += 20;
+                    ty -= 20;
+                } else {
+                    sy -= 20;
+                    ty += 20;
+                }
+                if(mst.length > 0) {
+                    console.log(mst);
+                }
+                context.beginPath();
+                context.moveTo(sx, sy);
+                context.lineTo(tx, ty);
+                context.font = 'bold';
+                context.fillStyle = '#000000';
+                context.fillText(weight, wx, wy);
+                context.fill();
+                context.stroke();
+            }
+
+        }
+
+        function isEdgeExists(vertex1, vertex2) {
+            if(!vertex1 || !vertex2) {
+                return 0;
+            }
+            let ret = 0;
+            let w = 0;
+            for(let i = 0; i < edges.length; i++) {
+                const e = edges[i];
+                if((e[0].text === vertex1.text || e[1].text === vertex1.text) && (e[0].text === vertex2.text || e[1].text === vertex2.text)) {
+                    ret = e;
+                    w = e[2];
+                    break;
+                }
+            }
+            return (ret && w) ? [ret, w] : false;
+        }
+
+        const addEdgeBetweenVertices = function(e) {
+            edges = [];
+            for(let i = 0; i < rowsEdges.rows.length; i++) {
+                const r = rowsEdges.rows[i];
+                const tds = r.getElementsByTagName('td');
+                if(tds.length < 3 || !tds[0].firstChild) {
+                    continue;
+                }
+                const select1 = tds[0].firstChild;
+                const select2 = tds[1].firstChild;
+                const inputWeight = tds[2].firstChild;
+
+                const ar = select1.id.split('_');
+                if(typeof ar[1] === "undefined") {
+                    continue;
+                }
+                const numVertex = parseInt(ar[1]);
+                if(isNaN(numVertex)) {
+                    continue;
+                }
+                if(!select1.options[select1.selectedIndex].text) {
+                    continue;
+                }
+                const numVertex1 = parseInt(select1.options[select1.selectedIndex].text);
+                const vertex1 = vertices[numVertex1];
+                if(isNaN(numVertex1) || numVertex1 < 0 || !vertex1) {
+                    continue;
+                }
+                if(!select2.options[select2.selectedIndex].text) {
+                    continue;
+                }
+                const numVertex2 = parseInt(select2.options[select2.selectedIndex].text);
+                const vertex2 = vertices[numVertex2];
+                if(isNaN(numVertex2) || numVertex2 < 0 || !vertex2) {
+                    continue;
+                }
+                if(numVertex1 === numVertex2) {
+                    alert('No circuit path allowed');
+                    continue;
+                }
+                const weight = parseInt(inputWeight.value);
+                if(isNaN(weight)) {
+                    continue;
+                }
+                let oe = isEdgeExists(vertex1, vertex2);
+                if(oe) {
+                    oe = oe[0];
+                    oe[2] = weight;
+                    document.getElementById("selectVertex_" + numVertex + "_0").selectedIndex = 0;
+                    document.getElementById("selectVertex_" + numVertex + "_1").selectedIndex = 0;
+                    document.getElementById("inputEdgeCost_" + numVertex).value = '';
+
+                    document.getElementById("selectVertex_" + oe[3] + "_0").selectedIndex = !isNaN(parseInt(oe[0].text)) ? parseInt(oe[0].text) + 1 : 0;
+                    document.getElementById("selectVertex_" + oe[3] + "_1").selectedIndex = !isNaN(parseInt(oe[1].text)) ? parseInt(oe[1].text) + 1 : 0;
+                    document.getElementById("inputEdgeCost_" + oe[3]).value = oe[2];
+                    continue;
+                }
+                let edge = [vertex1, vertex2, weight, numVertex];
+                edges.push(edge);
+            }
+            redrawGraph();
+        };
+
+        function getMinIndex(Queue) {
+            let min = Number.MAX_SAFE_INTEGER
+            let minIndex = 0;
+            for(let i = 0; i < Queue.length; i++) {
+                if(Queue[i].key < min) {
+                    min = Queue[i].key;
+                    minIndex = i;
+                }
+            }
+            return minIndex;
+        }
+
+        function getAdjacentVertices(vertex) {
+            const adjs = [];
+            for(let i = 0; i < vertices.length; i++) {
+                const v = vertices[i];
+                if(v.text === vertex.text) {
+                    continue;
+                }
+                if(isEdgeExists(v, vertex)) {
+                    adjs.push(v);
+                }
+            }
+            return adjs;
+        }
+
+        function inQueue(vertex, Queue) {
+            let ret = false;
+            for(let i = 0; i < Queue.length; i++) {
+                if(vertex.text === Queue[i].text) {
+                    ret = true;
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        function prims() {
+            if(sourceVertex <= -1) {
+                alert("Please choose a source vertex");
+                inputSourceVertex.focus();
+                return;
+            }
+            if(edges.length <= 0) {
+                alert("Please set some edges between vertices");
+                return;
+            }
+            vertices[sourceVertex].key = 0;
+            let Queue = vertices.slice();
+            while(Queue.length > 0) {
+                const vertexIndex = getMinIndex(Queue);
+                const vu = Queue[vertexIndex];
+                Queue.splice(vertexIndex, 1);
+                if(vu.parent != null) {
+                    const edge = isEdgeExists(vu, vu.parent);
+                    if(edge) {
+                        mst.push(edge[0]);
+                    }
+                }
+                const adjs = getAdjacentVertices(vu);
+                if(adjs.length > 0) {
+                    for(let a = 0; a < adjs.length; a++) {
+                        if(!inQueue(adjs[a], Queue)) {
+                            continue;
+                        }
+                        const edgeWeight = isEdgeExists(vu, adjs[a]);
+                        if(edgeWeight[1] < adjs[a].key) {
+                            adjs[a].key = edgeWeight[1];
+                            adjs[a].parent = vu;
+                        }
+                    }
+                }
+            }
+            if(mst.length > 0) {
+                redrawGraph();
+            }
+        }
+
+        function start() {
+            canvas = document.getElementById("canvas");
+            context = canvas.getContext("2d");
+            canvasWidth = canvas.width;
+            canvasHeight = canvas.height;
+            inputNumberOfVertex = document.getElementById("inputNumberOfVertex");
+            inputNumberOfEdge = document.getElementById("inputNumberOfEdge");
+            btnCreateGraph = document.getElementById("btnCreateGraph");
+            tableEdgesVertices = document.getElementById("tableEdgesVertices");
+            inputSourceVertex = document.getElementById("startVertex");
+            tableVerticesEdges = document.getElementById('tableVerticesEdges');
+            btnFindMst = document.getElementById("btnFindMst");
+            rowsEdges = document.getElementById("rowsEdges");
+            wrapperStartVertex = document.getElementById("wrapperStartVertex");
+            inputEdgeCosts = document.getElementsByClassName("inputEdgeCosts");
+            selectVertices = document.getElementsByClassName("selectVertices");
+
+            if(!btnCreateGraph || !inputNumberOfEdge || !inputNumberOfVertex || !btnFindMst || !tableVerticesEdges || !inputSourceVertex) {
+                return;
+            }
+
+            btnFindMst.onclick = function(e) {
+                const ar = prims();
+            }
+
+            inputNumberOfVertex.onchange = function(e) {
+                inputNumberOfEdge.value = 0;
+                const nbVertices = parseInt(e.target.value);
+                if(!nbVertices || isNaN(nbVertices)) {
+                    return;
+                }
+                inputNumberOfEdge.value = nbVertices - 1;
+            };
+
+            inputSourceVertex.onchange = function(e) {
+                const numVertex = parseInt(e.target.value);
+                if(isNaN(numVertex) || numVertex < 0 || numVertex >= vertices.length) {
+                    alert("The source vertex provided is incorrect");
+                    if(previousNumStartingVertex !== -1) {
+                        inputSourceVertex.value = previousNumStartingVertex;
+                    } else {
+                        inputSourceVertex.value = '';
+                    }
+                    inputSourceVertex.focus();
+                    return;
+                }
+                context.clearRect(0, 0, canvasWidth, canvasHeight);
+                sourceVertex = numVertex;
+                previousNumStartingVertex = sourceVertex;
+                drawGraph();
+            };
+
+            btnCreateGraph.onclick = function() {
+                initScene();
+                const numberOfVertex = parseInt(inputNumberOfVertex.value);
+                const numberOfEdge = parseInt(inputNumberOfEdge.value);
+                if(!numberOfVertex || numberOfVertex <= 0) {
+                    alert("Please enter a number of vertex for the graph");
+                    initScene();
+                    return;
+                }
+                if(numberOfVertex > MAX_VERTICES) {
+                    alert("The number of vertices can't be greater than: " + MAX_VERTICES);
+                    initScene();
+                    return;
+                }
+                if((!numberOfEdge || numberOfEdge <= 0)) {
+                    alert("Please enter a number of edge for the graph");
+                    initScene();
+                    return;
+                }
+                for(let i = 0; i < numberOfVertex; i++) {
+                    let vx = 0;
+                    let vy = 0;
+                    let tried = 0;
+                    let freezing = false;
+                    do {
+                        vx = randomInt(20, canvasWidth - 20);
+                        vy = randomInt(20, canvasHeight - 20);
+                        if(tried > 10) {
+                            i = -1;
+                            freezing = true;
+                            initScene();
+                            break;
+                        }
+                        tried++;
+                    } while (isCollision(vx, vy));
+                    if(freezing) {
+                        continue;
+                    }
+                    const v = new Vertex(vx, vy, i);
+                    vertices.push(v);
+                }
+
+                drawGraph();
+
+                for(let i = 0; i < numberOfEdge; i++) {
+                    let j;
+                    let idName = 'selectVertex_' + i + '_0';
+                    let s = "<select class='selectVertices' id='"+idName+"'><option value=''></option>";
+                    for(j = 0; j < numberOfVertex; j++) {
+                        s += "<option value='"+j+"'>"+j+"</option>";
+                    }
+                    s += "</select>";
+                    idName = 'selectVertex_' + i + '_1';
+                    let s1 = "<select class='selectVertices' id='"+idName+"'><option value=''></option>";
+                    for(j = 0; j < numberOfVertex; j++) {
+                        s1 += "<option value='"+j+"'>"+j+"</option>";
+                    }
+                    s1 += "</select>";
+                    idName = 'inputEdgeCost_' + i;
+                    rowsEdges.innerHTML += "<tr><td>"+s+"</td><td>"+s1+"</td><td><input type='number' min='0' class='inputEdgeCosts' id='"+idName+"'></td></tr>";
+                }
+
+                wrapperStartVertex.style.display      = "block";
+                tableVerticesEdges.style.display      = 'block';
+                btnFindMst.style.visibility           = "visible";
+                canvas.style                          = 'margin: 0 350px 20px 0;';
+                for(let i = 0; i < selectVertices.length; i++) {
+                    selectVertices[i].addEventListener('change', addEdgeBetweenVertices, false);
+                }
+                for(let i = 0; i < inputEdgeCosts.length; i++) {
+                    inputEdgeCosts[i].addEventListener('change', addEdgeBetweenVertices, false);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
