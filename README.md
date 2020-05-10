@@ -1,2 +1,2 @@
 # prims_js
-Graph Theory: Prim's Algorithm To Find MST
+Graph And Network Theory: Prim's Algorithm To Find Minimum Spanning Tree (MST)
