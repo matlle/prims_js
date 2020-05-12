@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body onload="start();">
+<body>
     <div class="mainWrapper">
         <h1 class="mainTitle">Graph Theory: Prim's Algorithm To Find MST</h1>
         <div class="controlCommands">
@@ -99,6 +99,9 @@
 
 
     <script type="text/javascript">
+        window.onload = function() {
+            start();
+        }
         const MAX_VERTICES = 12;
         let vertices = [];
         let edges    = [];
